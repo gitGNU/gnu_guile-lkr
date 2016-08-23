@@ -1,0 +1,5 @@
+To find out what should go in this file, see (maintain.texi), the
+section called "Recording Contributors".
+
+Kirk Zurell:
+wrote the Guile plugin and associated files.

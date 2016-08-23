@@ -1,0 +1,12 @@
+guile-linux-key-retention
+
+User-visible changes at July 2016:
+
+* Initial version to submit to nongnu.
+
+
+
+Local variables:
+mode: outline
+paragraph-separate: "[ 	]*$"
+end:

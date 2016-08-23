@@ -1,0 +1,418 @@
+\input texinfo     @c -*-texinfo-*-
+@setfilename guile-linux-key-retention.info
+@settitle Guile Linux Key Retention
+@include version.texi
+@copying
+This manual is for Guile Linux Key Retention (version @value{VERSION},
+@value{UPDATED}), which is an extension for GNU Guile.
+
+Copyright @copyright{} 2016 Kirk Zurell.
+
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.3 or
+any later version published by the Free Software Foundation; with no
+Invariant Sections, with no Front-Cover Texts, and with no Back-Cover
+Texts.  A copy of the license is included in the section entitled
+``GNU Free Documentation License''.
+
+@end copying
+
+@dircategory The Algorithmic Language Scheme
+@direntry
+* Linux Key Retention: (guile-linux-key-retention).
+@end direntry
+
+
+@titlepage
+@title Guile Linux Key Retention
+@subtitle for version @value{VERSION}, @value{UPDATED}
+@author Kirk Zurell (@email{kirk@@kirk.zurell.name})
+
+@c The following two commands start the copyright page.
+@page
+@vskip 0pt plus 1filll
+@insertcopying
+@end titlepage
+
+
+@c Output the table of contents at the beginning.
+@contents
+
+
+@ifnottex
+@node Top
+@top Guile Linux Key Retention
+
+This module gives GNU Guile programs access to the Linux kernel Key
+Retention service.
+@end ifnottex
+
+@menu
+* Limitations::                     Limitations in this 
+                                                implementation.
+* Key Retention::                   About Linux Key Retention.
+* API::                             API.
+* GNU Free Documentation License::
+* Index::                           Complete index.
+@end menu
+
+
+
+@c ******************************************************************
+@node Limitations
+@chapter Limitations
+
+These limitations may be removed before 1.0:
+
+Key payloads are dealt with as a string.
+
+String processing happens in 256 character buffers.
+
+Some procedures are unimplemented and return @code{#<undefined>} when
+invoked.
+
+
+
+@c ******************************************************************
+@node Key Retention
+@chapter Key Retention
+
+@cindex key retention
+
+The key retention system calls allow programs to store and retrieve
+encryption keys in the Linux kernel, and to cause them to be created
+as necessary.
+
+@cindex request-key
+
+A GNU Guile script can also be invoked by @code{request-key}, the
+user-space utility that the kernel calls to generate various kinds of
+keys. The script can perform the necessary operations on a key.
+
+Reading @file{security/keys.txt} in the Linux documentation is a
+must. This documentation only repeats as much information as is
+necessary for convenient use or to explain changed semantics.
+
+
+
+
+@c ******************************************************************
+@node API
+@chapter guile-linux-key-retention 
+
+The scheme procedures map almost exactly to the C functions described
+in @file{security/keys.txt} in the Linux documentation.
+
+Procedures have been scheme-ified, underscores changed to dashes.
+
+Constants have been copied verbatim.
+
+Some of the semantics have been altered to make them more
+``schemely''. Where 0 or -1 were a special value, @code{#t} or
+@code{#f} are now used or returned. Most optional arguments that were
+@code{NULL}ed in C may be omitted in Scheme.
+
+As a reminder: where permitted, arguments to GNU Guile procedures can
+be omitted only in reverse order. You cannot omit an argument and then
+provide a later argument and expect correct behaviour; if you want to
+omit the second-last argument, you cannot then expect to supply the
+last argument. This is not reiterated throughout the API text for
+simplicity's sake.
+
+System errors raised by the Linux key retention serivce are reported
+through @code{scm_syserror()}.
+
+
+
+@c ******************************************************************
+@deffn {Scheme Procedure} add-key keytype description payload keyring
+
+Create a key of @var{keytype} with @var{description}, with
+@var{payload} (string or @code{#f}), and add it to @var{keyring} if permitted.
+@end deffn
+
+
+
+@c ******************************************************************
+@deffn {Scheme Procedure} request-key keytype description callout_info destkeyring
+
+Request a key of @var{keytype} and @var{description}. If it doesn't
+exist, cause the kernel to instantiate the key with
+@var{callout_info}. Attach it to @var{destkeyring}.
+@end deffn
+
+
+
+@c ******************************************************************
+@deffn {Scheme Procedure} keyctl-get-keyring-ID id create
+
+Returns the unique ID of the keyring described by the special @var{id}
+
+The system-defined special identifiers are exposed in Scheme as:
+
+@code{KEY_SPEC_GROUP_KEYRING}
+@code{KEY_SPEC_SESSION_KEYRING}
+@code{KEY_SPEC_USER_SESSION_KEYRING}
+@code{KEY_SPEC_PROCESS_KEYRING}
+@code{KEY_SPEC_THREAD_KEYRING}
+@code{KEY_SPEC_REQKEY_AUTH_KEY}
+@code{KEY_SPEC_USER_KEYRING}
+@end deffn
+
+
+
+@c ******************************************************************
+@deffn {Scheme Procedure} keyctl-join-session-keyring-wrapper name
+
+If name is @code{#f}, create an anonymous keyring; if name is a
+string, find a keyring named @var{name} or create it. Either way,
+attach it to the process as its session keyring, displacing the
+existing session keyring.
+
+Returns the keyring so attached, whether newly created or found.
+@end deffn
+
+
+
+@c ******************************************************************
+@deffn {Scheme Procedure} keyctl-update key payload
+
+Update @var{key} with @var{payload} (string).  
+
+Will raise an error if the key type of @var{key} does not support the
+value @var{payload} in some way.
+@end deffn
+
+
+
+@c ******************************************************************
+@deffn {Scheme Procedure} keyctl-revoke key
+
+Revoke @var{key}. Further calls that use @var{key} will raise errors,
+and searches will not find it.
+@end deffn
+
+
+
+@c ******************************************************************
+@deffn {Scheme Procedure} keyctl-chown key uid gid
+
+Change the ownership of @var{key}. 
+
+If @var{uid} or @var{gid} are specifed as -1 or @code{#f} or undefined
+or omitted, the owner or group ID are not changed.
+
+Consult @file{keys.txt} for details on who besides the superuser may
+change a key's owner or group.
+@end deffn
+
+
+
+@c ******************************************************************
+@deffn {Scheme Procedure} keyctl-setperm key perm
+
+Change the permssions mask on a key.
+
+@var{perm} is a bitwise combination of 
+
+@code{KEY_POS_*}
+@code{KEY_USR_*}
+@code{KEY_GRP_*}
+@code{KEY_OTH_*}
+
+constants.
+@end deffn
+
+
+
+@c ******************************************************************
+@deffn {Scheme Procedure} keyctl-describe key
+
+Returns the description string of @var{key}.
+
+This is unparsed, in the form
+
+<type>;<uid>;<gid>;<perm>;<description>
+
+@end deffn
+
+
+
+@c ******************************************************************
+@deffn {Scheme Procedure} keyctl-clear keyring
+
+Clears @var{keyring} of any attached keys.
+
+This clears the keyring if it is a keyring, and if permitted.
+
+See @file{keys.txt} for other conditions re: the special kernel
+keyrings.
+@end deffn
+
+
+
+@c ******************************************************************
+@deffn {Scheme Procedure} keyctl-link keyring key
+
+Creates a link from the @var{keyring} to the @var{key}.
+
+See @file{keys.txt} for other semantics re: loops, and replacement of
+existing keys.
+@end deffn
+
+
+
+@c ******************************************************************
+@deffn {Scheme Procedure} keyctl-unlink keyring, key
+
+Removes the first existing link from @var{keyring} to @var{key}.
+
+See @file{keys.txt} for other semantics.
+@end deffn
+
+
+
+@c ******************************************************************
+@deffn {Scheme Procedure} keyctl-search keyring keytype description destkeyring
+
+Searches the keyring tree headed by @var{keyring} until a key matching
+@var{keytype} and @var{description} is found, if it exists.
+
+If found, and @var{destkeyring} is not omitted, the key will be linked
+into this destination keyring if allowed.
+
+Returns the resulting key.
+@end deffn
+
+
+
+@c ******************************************************************
+@deffn {Scheme Procedure} keyctl-read key
+
+Returns the payload of @var{key}.
+
+The payload is interpreted as a string.
+@end deffn
+
+
+@c ******************************************************************
+@deffn {Scheme Procedure} keyctl-instantiate key payload keyring
+
+Instantiate a partially constructed key.
+
+Unimplemented.
+@end deffn
+
+
+@c ******************************************************************
+@deffn {Scheme Procedure} keyctl-negate key timeout keyring
+
+Mark the key as negative if the program is unable to fulfill the
+@code{request-key} request.
+
+If @var{keyring} is a valid keyring, link @var{key} into
+@var{keyring} if allowed.
+
+This procedure is most useful in programs that respond to
+@code{request-key} invocations by the kernel.
+@end deffn
+
+
+
+@c ******************************************************************
+@deffn {Scheme Procedure} keyctl-reject key timeout error keyring
+
+Mark the key as rejected if the program is unable to fulfill the
+@code{request-key} request.
+
+If @code{keyring} is a valid keyring, link @var{key} into
+@var{keyring} if allowed.
+
+This procedure is most useful in programs that respond to
+@code{request-key} invocations by the kernel.
+@end deffn
+
+
+
+@c ******************************************************************
+@deffn {Scheme Procedure} keyctl-set-reqkey-keyring reqkey-defl
+
+Sets the default keyring to which implicitly requested keys will be
+attached for this thread.
+
+@var{reqkey-defl} should be one of:
+
+@code{KEY_REQKEY_DEFL_NO_CHANGE}
+@code{KEY_REQKEY_DEFL_DEFAULT}	
+@code{KEY_REQKEY_DEFL_THREAD_KEYRING}	
+@code{KEY_REQKEY_DEFL_PROCESS_KEYRING}		
+@code{KEY_REQKEY_DEFL_SESSION_KEYRING}	
+@code{KEY_REQKEY_DEFL_USER_KEYRING}	
+@code{KEY_REQKEY_DEFL_USER_SESSION_KEYRING}	
+@code{KEY_REQKEY_DEFL_GROUP_KEYRING}	
+
+@end deffn
+
+
+
+@c ******************************************************************
+@deffn {Scheme Procedure} keyctl-set-timeout key timeout
+
+Set or clear the @var{timeout} in seconds on @var{key}.
+@end deffn
+
+
+
+@c ******************************************************************
+@deffn {Scheme Procedure} keyctl-assume-authority key
+
+Assume or divest authority required to instantiate the specified key.
+
+If key is 0 or #f, any assumed authority is divested.
+@end deffn
+
+
+
+@c ******************************************************************
+@deffn {Scheme Procedure} keyctl-get-security key
+
+Returns the LSM security context of @var{key}.
+@end deffn
+
+
+
+@c ******************************************************************
+@deffn {Scheme Procedure} keyctl-session-to-parent
+
+Install the calling process's session keyring as the session keyring
+of process's parent, if allowed.
+@end deffn
+
+
+
+@c ******************************************************************
+@deffn {Scheme Procedure} keyctl-invalidate key
+
+Marks a key as invalidated.
+@end deffn
+
+
+
+
+@c ******************************************************************
+@node GNU Free Documentation License
+@appendix GNU Free Documentation License
+
+@include fdl-1.3.texi
+
+
+
+
+@node Index
+@unnumbered Index
+
+@printindex cp
+
+
+
+@bye
