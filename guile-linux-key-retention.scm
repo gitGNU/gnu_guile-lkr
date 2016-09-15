@@ -16,7 +16,7 @@
  ;; Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  ;; 02110-1301 USA
 
-(define-module (linux-key-retention)
+(define-module (linux-key-retention guile-linux-key-retention)
   #:export (key))
 
-(load-extension "libguile-linux-key-retention" "init_linux_key_retention")
+(load-extension "/usr/local/lib/libguile-linux-key-retention.so" "init_linux_key_retention")

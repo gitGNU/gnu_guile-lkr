@@ -20,7 +20,9 @@
 
 ACLOCAL_AMFLAGS = -I m4
 
+guile_ext_ddir = $(GUILE_EXT_DIR)
 lib_LTLIBRARIES = libguile-linux-key-retention.la
+#guile_ext_d_LTLIBRARIES = libguile-linux-key-retention.la
 info_TEXINFOS = guile-linux-key-retention.texi
 
 libguile_linux_key_retention_la_SOURCES = main.c
@@ -28,3 +30,14 @@ libguile_linux_key_retention_la_LDFLAGS = -export-dynamic
 
 libguile_linux_key_retention_la_CFLAGS = $(GUILE_CFLAGS)
 libguile_linux_key_retention_la_LIBADD = $(GUILE_LIBS) 
+
+EXTRA_DIST = guile-lkr-debug guile-lkr.conf guile-linux-key-retention.scm
+
+dist_bin_SCRIPTS = guile-lkr-debug
+
+guilelkrsite_ddir = @GUILE_SITE@/linux-key-retention
+dist_guilelkrsite_d_SCRIPTS = guile-linux-key-retention.scm
+
+#rkconf_ddir = $(sysconfdir)/request-key.d
+rkconf_ddir = /etc/request-key.d
+dist_rkconf_d_SCRIPTS = guile-lkr.conf

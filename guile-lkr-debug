@@ -1,0 +1,4 @@
+#!/usr/bin/guile
+!#
+(display "Guile-based key retention upcall.")
+(newline)
