@@ -26,6 +26,8 @@ Makefile.in
 
 
 /stamp-h?
+/stamp-vti
+/version.texi
 
 /TAGS
 
