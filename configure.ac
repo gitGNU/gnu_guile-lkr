@@ -33,6 +33,7 @@ CFLAGS=""
 dnl Recommended for libtoolize.
 AC_CONFIG_MACRO_DIR([m4])
 
+AC_CHECK_HEADERS([errno.h])
 AC_CHECK_HEADERS([libguile.h])
 AC_CHECK_HEADERS([keyutils.h])
 
@@ -46,8 +47,8 @@ AC_PROG_CC
 PKG_CHECK_MODULES([GUILE], [guile-2.0],
   [guile_ext_dir=`pkg-config guile-2.0 --variable=extensiondir`]
 )
+GUILE_FLAGS
 GUILE_SITE_DIR
-AC_SUBST(GUILE_EXT_DIR, $guile_ext_dir)
 
 # Generate a Makefile, based on the results.
 AC_OUTPUT(Makefile)

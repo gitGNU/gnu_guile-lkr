@@ -59,12 +59,15 @@ scm_is_key_serial_t(SCM x)
    Methods 
 */
 
-
-
-SCM
-add_key_wrapper (SCM keytype, SCM description, SCM payload, SCM keyring)
+/* SCM */
+SCM_DEFINE (add_key_wrapper,   /* Function name in C */
+            "add-key", /* Function name in Scheme */
+            2, 2,      /* No. of required/optional args */
+            0,         /* Whether accepts "rest" arg */
+            (SCM keytype, SCM description, SCM payload, SCM keyring), /* C argument list */
+            "Add a key.") /* Docstring */
 {
-  key_serial_t result = NULL;
+  key_serial_t result = 0;
 
   char *req_keytype = NULL;
   char *req_description = NULL;
@@ -72,7 +75,7 @@ add_key_wrapper (SCM keytype, SCM description, SCM payload, SCM keyring)
   void * req_payload = NULL;
   size_t req_plen = 0;
   
-  key_serial_t req_keyring = NULL;
+  key_serial_t req_keyring = 0;
 
   SCM_ASSERT_TYPE(scm_is_string(keytype), keytype, SCM_ARG1, "add-key", "STRING" );
   SCM_ASSERT_TYPE(scm_is_string(description), description, SCM_ARG2, "add-key", "STRING" );
@@ -117,17 +120,20 @@ add_key_wrapper (SCM keytype, SCM description, SCM payload, SCM keyring)
 }
 
 
-
-
-SCM
-request_key_wrapper (SCM keytype, SCM description, SCM callout_info, SCM dest_keyring)
+/* SCM */
+SCM_DEFINE(request_key_wrapper,
+	   "request-key",
+	   2, 2,
+	   0, 
+	   (SCM keytype, SCM description, SCM callout_info, SCM dest_keyring),
+	   "Request a key.")
 {
-  key_serial_t result = NULL;
+  key_serial_t result = 0;
 
   char *req_keytype = NULL;
   char *req_description = NULL;
   void *req_callout_info = NULL;
-  key_serial_t req_dest_keyring = NULL;
+  key_serial_t req_dest_keyring = 0;
 
   SCM_ASSERT_TYPE(scm_is_string(keytype), keytype, SCM_ARG1, "request-key", "STRING" );
   SCM_ASSERT_TYPE(scm_is_string(description), description, SCM_ARG2, "request-key", "STRING" );
@@ -173,13 +179,19 @@ request_key_wrapper (SCM keytype, SCM description, SCM callout_info, SCM dest_ke
 
 
 
+// key_serial_t keyctl(KEYCTL_GET_KEYRING_ID, key_serial_t id, int create);
+/* SCM */
+SCM_DEFINE (keyctl_get_keyring_ID_wrapper,   /* Function name in C */
+            "keyctl-get-keyring-id", /* Function name in Scheme */
+            1, 1,      /* No. of required/optional args */
+            0,         /* Whether accepts "rest" arg */
+            (SCM id, SCM create), /* C argument list */
+            "Get the ID of a keyring.") /* Docstring */
 
-SCM
-keyctl_get_keyring_ID_wrapper(SCM id, SCM create)
 {
-  key_serial_t result = NULL;
+  key_serial_t result = 0;
 
-  key_serial_t req_id = NULL;
+  key_serial_t req_id = 0;
   int req_create = 0;
   
   SCM_ASSERT_TYPE(scm_is_key_serial_t(id), id, SCM_ARG1, "keyctl-get-keyring-ID", KEY_SERIAL_DESC );
@@ -204,12 +216,16 @@ keyctl_get_keyring_ID_wrapper(SCM id, SCM create)
   return scm_from_key_serial_t(result);
 }
 
-
-
-SCM
-keyctl_join_session_keyring_wrapper(SCM name)
+// key_serial_t keyctl(KEYCTL_JOIN_SESSION_KEYRING, const char *name);
+/* SCM */
+SCM_DEFINE (keyctl_join_session_keyring_wrapper,   /* Function name in C */
+            "keyctl-join-session-keyring", /* Function name in Scheme */
+            0, 1,      /* No. of required/optional args */
+            0,         /* Whether accepts "rest" arg */
+            (SCM name), /* C argument list */
+            "Join session keyring.") /* Docstring */
 {
-  key_serial_t result;
+  key_serial_t result = 0;
   char *req_name = NULL;
   
   SCM_ASSERT_TYPE(scm_is_string(name) 
@@ -238,13 +254,18 @@ keyctl_join_session_keyring_wrapper(SCM name)
 }
 
 
-
-SCM
-keyctl_update_wrapper(SCM key, SCM payload)
+// long keyctl(KEYCTL_UPDATE, key_serial_t key, const void *payload, size_t plen);
+/* SCM */
+SCM_DEFINE (keyctl_update_wrapper,   /* Function name in C */
+            "keyctl-update", /* Function name in Scheme */
+            1, 1,      /* No. of required/optional args */
+            0,         /* Whether accepts "rest" arg */
+            (SCM key, SCM payload), /* C argument list */
+            "Update a key's payload") /* Docstring */
 {
   long result = 0;
 
-  key_serial_t req_key = NULL;
+  key_serial_t req_key = 0;
 
   void * req_payload = NULL;
   size_t req_plen = 0;
@@ -278,13 +299,18 @@ keyctl_update_wrapper(SCM key, SCM payload)
   return scm_from_long(result);
 }
 
-
-SCM
-keyctl_revoke_wrapper(SCM key)
+// long keyctl(KEYCTL_REVOKE, key_serial_t key);
+/* SCM */
+SCM_DEFINE (keyctl_revoke_wrapper,   /* Function name in C */
+            "keyctl-revoke", /* Function name in Scheme */
+            1, 0,      /* No. of required/optional args */
+            0,         /* Whether accepts "rest" arg */
+            (SCM key), /* C argument list */
+            "Revoke a key.") /* Docstring */
 { 
   long result;
   
-  key_serial_t req_key = NULL;
+  key_serial_t req_key = 0;
 
   SCM_ASSERT_TYPE(scm_is_key_serial_t(key), key, SCM_ARG1, "keyctl-revoke", KEY_SERIAL_DESC);
   
@@ -301,12 +327,17 @@ keyctl_revoke_wrapper(SCM key)
 }
 
 
-
-SCM
-keyctl_chown_wrapper(SCM key, SCM uid, SCM gid)
+// long keyctl(KEYCTL_CHOWN, key_serial_t key, uid_t uid, gid_t gid);
+/* SCM */
+SCM_DEFINE (keyctl_chown_wrapper,   /* Function name in C */
+            "keyctl-chown", /* Function name in Scheme */
+            1, 2,      /* No. of required/optional args */
+            0,         /* Whether accepts "rest" arg */
+            (SCM key, SCM uid, SCM gid), /* C argument list */
+            "Set a key's uid and gid.") /* Docstring */
 {
   long result = 0;
-  key_serial_t req_key = NULL;
+  key_serial_t req_key = 0;
   uid_t req_uid = -1;
   gid_t req_gid = -1;
 
@@ -343,12 +374,17 @@ keyctl_chown_wrapper(SCM key, SCM uid, SCM gid)
 }
 
 
-
-SCM
-keyctl_setperm_wrapper(SCM key, SCM perm)
+// long keyctl(KEYCTL_SETPERM, key_serial_t key, key_perm_t perm);
+/* SCM */
+SCM_DEFINE (keyctl_setperm_wrapper,   /* Function name in C */
+            "keyctl-setperm", /* Function name in Scheme */
+            2, 0,      /* No. of required/optional args */
+            0,         /* Whether accepts "rest" arg */
+            (SCM key, SCM perm), /* C argument list */
+            "Set a key's permissions.") /* Docstring */
 {
   long result = 0;
-  key_serial_t req_key = NULL;
+  key_serial_t req_key = 0;
   key_perm_t req_perm = 0;
 
   SCM_ASSERT_TYPE(scm_is_key_serial_t(key), key, SCM_ARG1, "keyctl-setperm", KEY_SERIAL_DESC);
@@ -369,13 +405,18 @@ keyctl_setperm_wrapper(SCM key, SCM perm)
 }
 
 
-
-SCM
-keyctl_describe_wrapper(SCM key)
+// long keyctl(KEYCTL_DESCRIBE, key_serial_t key, char *buffer, size_t buflen);
+/* SCM */
+SCM_DEFINE (keyctl_describe_wrapper,   /* Function name in C */
+            "keyctl-describe", /* Function name in Scheme */
+            1, 0,      /* No. of required/optional args */
+            0,         /* Whether accepts "rest" arg */
+            (SCM key), /* C argument list */
+            "Describe a key.") /* Docstring */
 {
   long result = 0;
 
-  key_serial_t req_key = NULL;
+  key_serial_t req_key = 0;
   char req_buffer[256];
 
   SCM_ASSERT_TYPE(scm_is_key_serial_t(key), key, SCM_ARG1, "keyctl-describe", KEY_SERIAL_DESC);
@@ -396,13 +437,18 @@ keyctl_describe_wrapper(SCM key)
 }
 
 
-
-SCM
-keyctl_clear_wrapper(SCM keyring)
+// long keyctl(KEYCTL_CLEAR, key_serial_t keyring);
+/* SCM */
+SCM_DEFINE (keyctl_clear_wrapper,   /* Function name in C */
+            "keyctl-clear", /* Function name in Scheme */
+            1, 0,      /* No. of required/optional args */
+            0,         /* Whether accepts "rest" arg */
+            (SCM keyring), /* C argument list */
+            "Clear a keyring.") /* Docstring */
 {
   long result = 0;
 
-  key_serial_t req_keyring = NULL;
+  key_serial_t req_keyring = 0;
   
   SCM_ASSERT_TYPE(scm_is_key_serial_t(keyring), keyring, SCM_ARG1, "keyctl-clear", KEY_SERIAL_DESC);
   
@@ -420,12 +466,18 @@ keyctl_clear_wrapper(SCM keyring)
 
 
 
-SCM
-keyctl_link_wrapper(SCM keyring, SCM key)
+// long keyctl(KEYCTL_LINK, key_serial_t keyring, key_serial_t key);
+/* SCM */
+SCM_DEFINE (keyctl_link_wrapper,   /* Function name in C */
+            "keyctl-link", /* Function name in Scheme */
+            2, 0,      /* No. of required/optional args */
+            0,         /* Whether accepts "rest" arg */
+            (SCM keyring, SCM key), /* C argument list */
+            "Link a key to a keyring.") /* Docstring */
 {
   long result = 0;
-  key_serial_t req_keyring = NULL;
-  key_serial_t req_key = NULL;
+  key_serial_t req_keyring = 0;
+  key_serial_t req_key = 0;
 
   SCM_ASSERT_TYPE(scm_is_key_serial_t(keyring), keyring, SCM_ARG1, "keyctl-link", KEY_SERIAL_DESC);
   SCM_ASSERT_TYPE(scm_is_key_serial_t(key), key, SCM_ARG2, "keyctl-link", KEY_SERIAL_DESC);
@@ -445,13 +497,18 @@ keyctl_link_wrapper(SCM keyring, SCM key)
 }
 
 
-
-SCM
-keyctl_unlink_wrapper(SCM keyring, SCM key)
+// long keyctl(KEYCTL_UNLINK, key_serial_t keyring, key_serial_t key);
+/* SCM */
+SCM_DEFINE (keyctl_unlink_wrapper,   /* Function name in C */
+            "keyctl-unlink", /* Function name in Scheme */
+            2, 0,      /* No. of required/optional args */
+            0,         /* Whether accepts "rest" arg */
+            (SCM keyring, SCM key), /* C argument list */
+            "Unlink a key.") /* Docstring */
 {
   long result = 0;
-  key_serial_t req_keyring = NULL;
-  key_serial_t req_key = NULL;
+  key_serial_t req_keyring = 0;
+  key_serial_t req_key = 0;
 
   SCM_ASSERT_TYPE(scm_is_key_serial_t(keyring), keyring, SCM_ARG1, "keyctl-unlink", KEY_SERIAL_DESC);
   SCM_ASSERT_TYPE(scm_is_key_serial_t(key), key, SCM_ARG2, "keyctl-unlink", KEY_SERIAL_DESC);
@@ -472,15 +529,20 @@ keyctl_unlink_wrapper(SCM keyring, SCM key)
 
 
 
-
-SCM
-keyctl_search_wrapper(SCM keyring, SCM keytype, SCM description, SCM dest_keyring)
+// key_serial_t keyctl(KEYCTL_SEARCH, key_serial_t keyring,  const char *type, const char *description,  key_serial_t dest_keyring);
+/* SCM */
+SCM_DEFINE (keyctl_search_wrapper,   /* Function name in C */
+            "keyctl-search", /* Function name in Scheme */
+            3, 1,      /* No. of required/optional args */
+            0,         /* Whether accepts "rest" arg */
+            (SCM keyring, SCM keytype, SCM description, SCM dest_keyring), /* C argument list */
+            "Search for a key by description.") /* Docstring */
 {
-  key_serial_t result = NULL;
-  key_serial_t req_keyring = NULL;
+  key_serial_t result = 0;
+  key_serial_t req_keyring = 0;
   char * req_keytype = NULL;
   char * req_description = NULL;
-  key_serial_t req_dest_keyring = NULL;
+  key_serial_t req_dest_keyring = 0;
 
   SCM_ASSERT_TYPE(scm_is_key_serial_t(keyring), keyring, SCM_ARG1, "keyctl-search", KEY_SERIAL_DESC);
   SCM_ASSERT_TYPE(scm_is_string(keytype), keytype, SCM_ARG2, "keyctl-search", "STRING");
@@ -518,13 +580,18 @@ keyctl_search_wrapper(SCM keyring, SCM keytype, SCM description, SCM dest_keyrin
 }
 
 
-
-SCM
-keyctl_read_wrapper(SCM key)
+// long keyctl(KEYCTL_READ, key_serial_t keyring, char *buffer, size_t buflen);
+/* SCM */
+SCM_DEFINE (keyctl_read_wrapper,   /* Function name in C */
+            "keyctl-read", /* Function name in Scheme */
+            1, 0,      /* No. of required/optional args */
+            0,         /* Whether accepts "rest" arg */
+            (SCM key), /* C argument list */
+            "Read a key.") /* Docstring */
 {
   long result = 0;
 
-  key_serial_t req_key = NULL;
+  key_serial_t req_key = 0;
   char req_buffer[256];
   
   SCM_ASSERT_TYPE(scm_is_key_serial_t(key), key, SCM_ARG1, "keyctl-read", KEY_SERIAL_DESC);
@@ -545,22 +612,33 @@ keyctl_read_wrapper(SCM key)
 
 
 
-SCM
-keyctl_instantiate_wrapper(SCM key, SCM payload, SCM keyring)
+// long keyctl(KEYCTL_INSTANTIATE, key_serial_t key, const void *payload, size_t plen, key_serial_t keyring);
+/* SCM */
+SCM_DEFINE (keyctl_instantiate_wrapper,   /* Function name in C */
+            "keyctl-instantiate", /* Function name in Scheme */
+            2, 1,      /* No. of required/optional args */
+            0,         /* Whether accepts "rest" arg */
+            (SCM key, SCM payload, SCM keyring), /* C argument list */
+            "Instantiate a requested key.") /* Docstring */
 {
   return SCM_UNDEFINED;
 }
 
 
-
-SCM
-keyctl_negate_wrapper(SCM key, SCM timeout, SCM keyring)
+// long keyctl(KEYCTL_NEGATE, key_serial_t key, unsigned timeout, key_serial_t keyring);
+/* SCM */
+SCM_DEFINE (keyctl_negate_wrapper,   /* Function name in C */
+            "keyctl-negate", /* Function name in Scheme */
+            2, 1,      /* No. of required/optional args */
+            0,         /* Whether accepts "rest" arg */
+            (SCM key, SCM timeout, SCM keyring), /* C argument list */
+            "Negate a key.") /* Docstring */
 {
   long result = 0;
 
-  key_serial_t req_key = NULL;
+  key_serial_t req_key = 0;
   unsigned req_timeout = 0;
-  key_serial_t req_keyring = NULL;
+  key_serial_t req_keyring = 0;
 
   SCM_ASSERT_TYPE(scm_is_key_serial_t(key), key, SCM_ARG1, "keyctl-negate", KEY_SERIAL_DESC );  
   SCM_ASSERT_TYPE(scm_is_number(timeout), timeout, SCM_ARG2, "keyctl-negate", KEY_SERIAL_DESC );
@@ -590,16 +668,21 @@ keyctl_negate_wrapper(SCM key, SCM timeout, SCM keyring)
 }
 
 
-
-SCM
-keyctl_reject_wrapper(SCM key, SCM timeout, SCM error, SCM keyring)
+// long keyctl(KEYCTL_REJECT, key_serial_t key, unsigned timeout, unsigned error, key_serial_t keyring);
+/* SCM */
+SCM_DEFINE (keyctl_reject_wrapper,   /* Function name in C */
+            "keyctl-reject", /* Function name in Scheme */
+            3, 1,      /* No. of required/optional args */
+            0,         /* Whether accepts "rest" arg */
+            (SCM key, SCM timeout, SCM error, SCM keyring), /* C argument list */
+            "Rejects a key.") /* Docstring */
 {
   long result = 0;
 
-  key_serial_t req_key = NULL;
+  key_serial_t req_key = 0;
   unsigned req_timeout = 0;
   unsigned req_error = 0;
-  key_serial_t req_keyring = NULL;
+  key_serial_t req_keyring = 0;
 
   SCM_ASSERT_TYPE(scm_is_key_serial_t(key), key, SCM_ARG1, "keyctl-reject", KEY_SERIAL_DESC );  
   SCM_ASSERT_TYPE(scm_is_number(timeout), timeout, SCM_ARG2, "keyctl-reject", KEY_SERIAL_DESC );
@@ -631,13 +714,18 @@ keyctl_reject_wrapper(SCM key, SCM timeout, SCM error, SCM keyring)
 }
 
 
-
-SCM
-keyctl_set_reqkey_keyring_wrapper(SCM reqkey_defl)
+// long keyctl(KEYCTL_SET_REQKEY_KEYRING, int reqkey_defl);
+/* SCM */
+SCM_DEFINE (keyctl_set_reqkey_keyring_wrapper,   /* Function name in C */
+            "keyctl-set-reqkey-keyring", /* Function name in Scheme */
+            1, 0,      /* No. of required/optional args */
+            0,         /* Whether accepts "rest" arg */
+            (SCM reqkey_defl), /* C argument list */
+            "Sets a requested key's keyring.") /* Docstring */
 {
   long result = 0;
 
-  int req_reqkey_defl = NULL;
+  int req_reqkey_defl = 0;
 
   SCM_ASSERT_TYPE(scm_is_signed_integer(reqkey_defl, INT_MIN, INT_MAX), 
 		  reqkey_defl, SCM_ARG1, "keyctl-set-reqkey", KEY_SERIAL_DESC );
@@ -655,13 +743,18 @@ keyctl_set_reqkey_keyring_wrapper(SCM reqkey_defl)
 }
 
 
-
-SCM
-keyctl_set_timeout_wrapper(SCM key, SCM timeout)
+// long keyctl(KEYCTL_SET_TIMEOUT, key_serial_t key, unsigned timeout);
+/* SCM */
+SCM_DEFINE (keyctl_set_timeout_wrapper,   /* Function name in C */
+            "keyctl-set-timeout", /* Function name in Scheme */
+            2, 0,      /* No. of required/optional args */
+            0,         /* Whether accepts "rest" arg */
+            (SCM key, SCM timeout), /* C argument list */
+            "Sets a key's timeout.") /* Docstring */
 {
   long result = 0;
 
-  key_serial_t req_key = NULL;
+  key_serial_t req_key = 0;
   /* KEYCTL_SET_TIMEOUT parameter is unsigned implied int. */
   unsigned req_timeout = 0;
 
@@ -683,13 +776,18 @@ keyctl_set_timeout_wrapper(SCM key, SCM timeout)
 }
 
 
-
-SCM
-keyctl_assume_authority_wrapper(SCM key)
+// long keyctl(KEYCTL_ASSUME_AUTHORITY, key_serial_t key);
+/* SCM */
+SCM_DEFINE (keyctl_assume_authority_wrapper,   /* Function name in C */
+            "keyctl-assume-authority", /* Function name in Scheme */
+            0, 1,      /* No. of required/optional args */
+            0,         /* Whether accepts "rest" arg */
+            (SCM key), /* C argument list */
+            "Assumes authority over a key.") /* Docstring */
 {
   long result = 0;
 
-  key_serial_t req_key = NULL;
+  key_serial_t req_key = 0;
 
   SCM_ASSERT_TYPE(scm_is_key_serial_t(key)
 		  || scm_is_false(key)
@@ -707,13 +805,18 @@ keyctl_assume_authority_wrapper(SCM key)
 }
 
 
-
-SCM
-keyctl_get_security_wrapper(SCM key)
+// long keyctl(KEYCTL_GET_SECURITY, key_serial_t key, char *buffer, size_t buflen)
+/* SCM */
+SCM_DEFINE (keyctl_get_security_wrapper,   /* Function name in C */
+            "keyctl-get-security", /* Function name in Scheme */
+            1, 0,      /* No. of required/optional args */
+            0,         /* Whether accepts "rest" arg */
+            (SCM key), /* C argument list */
+            "Gets the security descriptor for a key.") /* Docstring */
 {
   long result = 0;
 
-  key_serial_t req_key = NULL;
+  key_serial_t req_key = 0;
   char req_buffer[256];
 
   SCM_ASSERT_TYPE(scm_is_key_serial_t(key), key, SCM_ARG1, "keyctl-get-security", KEY_SERIAL_DESC);
@@ -734,9 +837,14 @@ keyctl_get_security_wrapper(SCM key)
 }
 
 
-
-SCM
-keyctl_session_to_parent_wrapper(void)
+// long keyctl(KEYCTL_SESSION_TO_PARENT); 
+/* SCM */
+SCM_DEFINE (keyctl_session_to_parent_wrapper,   /* Function name in C */
+            "keyctl-session-to-parent", /* Function name in Scheme */
+            0, 0,      /* No. of required/optional args */
+            0,         /* Whether accepts "rest" arg */
+            (void), /* C argument list */
+            "Map session keychain to parent.") /* Docstring */
 {
   long result = 0;
 
@@ -751,12 +859,17 @@ keyctl_session_to_parent_wrapper(void)
 }
 
 
-
-SCM
-keyctl_invalidate_wrapper(SCM key)
+// long keyctl(KEYCTL_INVALIDATE, key_serial_t key);
+/* SCM */
+SCM_DEFINE (keyctl_invalidate_wrapper,   /* Function name in C */
+            "keyctl-invalidate", /* Function name in Scheme */
+            1, 0,      /* No. of required/optional args */
+            0,         /* Whether accepts "rest" arg */
+            (SCM key), /* C argument list */
+            "Invalidate a key.") /* Docstring */
 {
   long result = 0;
-  key_serial_t req_key = NULL;
+  key_serial_t req_key = 0;
 
   SCM_ASSERT_TYPE(scm_is_key_serial_t(key), key, SCM_ARG1, "keyctl-invalidate", KEY_SERIAL_DESC );
 
@@ -804,76 +917,12 @@ init_linux_key_retention (void)
  
   /* Add and request keys */
 
-  scm_c_define_gsubr ("add-key", 2, 2, 0, add_key_wrapper);  
+  #include "main.x"
 
-  scm_c_define_gsubr ("request-key", 2, 2, 0, request_key_wrapper);
 
   /* keyctl methods.
      Separated out to procedures 'cause that's probably a good idea.
    */
-
-  // key_serial_t keyctl(KEYCTL_GET_KEYRING_ID, key_serial_t id, int create);
-  scm_c_define_gsubr ("keyctl-get-keyring-id", 1, 1, 0, keyctl_get_keyring_ID_wrapper);
-
-  // key_serial_t keyctl(KEYCTL_JOIN_SESSION_KEYRING, const char *name);
-  scm_c_define_gsubr ("keyctl-join-session-keyring", 0, 1, 0, keyctl_join_session_keyring_wrapper);
-
-  // long keyctl(KEYCTL_UPDATE, key_serial_t key, const void *payload, size_t plen);
-  scm_c_define_gsubr ("keyctl-update", 1, 1, 0, keyctl_update_wrapper);
-
-  // long keyctl(KEYCTL_REVOKE, key_serial_t key);
-  scm_c_define_gsubr ("keyctl-revoke", 1, 0, 0, keyctl_revoke_wrapper);
-
-  // long keyctl(KEYCTL_CHOWN, key_serial_t key, uid_t uid, gid_t gid);
-  scm_c_define_gsubr ("keyctl-chown", 1, 2, 0, keyctl_chown_wrapper);
-
-  // long keyctl(KEYCTL_SETPERM, key_serial_t key, key_perm_t perm);
-  scm_c_define_gsubr ("keyctl-setperm", 2, 0, 0, keyctl_setperm_wrapper);
-
-  // long keyctl(KEYCTL_DESCRIBE, key_serial_t key, char *buffer, size_t buflen);
-  scm_c_define_gsubr ("keyctl-describe", 1, 0, 0, keyctl_describe_wrapper);
-  
-  // long keyctl(KEYCTL_CLEAR, key_serial_t keyring);
-  scm_c_define_gsubr ("keyctl-clear", 1, 0, 0, keyctl_clear_wrapper);
-
-  // long keyctl(KEYCTL_LINK, key_serial_t keyring, key_serial_t key);
-  scm_c_define_gsubr ("keyctl-link", 2, 0, 0, keyctl_link_wrapper);
-
-  // long keyctl(KEYCTL_UNLINK, key_serial_t keyring, key_serial_t key);
-  scm_c_define_gsubr ("keyctl-unlink", 2, 0, 0, keyctl_unlink_wrapper);
-
-  // key_serial_t keyctl(KEYCTL_SEARCH, key_serial_t keyring,  const char *type, const char *description,  key_serial_t dest_keyring);
-  scm_c_define_gsubr ("keyctl-search", 3, 1, 0, keyctl_search_wrapper);
-
-  // long keyctl(KEYCTL_READ, key_serial_t keyring, char *buffer, size_t buflen);
-  scm_c_define_gsubr ("keyctl-read", 1, 0, 0, keyctl_read_wrapper);
-
-  // long keyctl(KEYCTL_INSTANTIATE, key_serial_t key, const void *payload, size_t plen, key_serial_t keyring);
-  scm_c_define_gsubr ("keyctl-instantiate", 2, 1, 0, keyctl_instantiate_wrapper);
-
-  // long keyctl(KEYCTL_NEGATE, key_serial_t key, unsigned timeout, key_serial_t keyring);
-  scm_c_define_gsubr ("keyctl-negate", 2, 1, 0, keyctl_negate_wrapper);
-
-  // long keyctl(KEYCTL_REJECT, key_serial_t key, unsigned timeout, unsigned error, key_serial_t keyring);
-  scm_c_define_gsubr ("keyctl-reject", 3, 1, 0, keyctl_reject_wrapper);
-
-  // long keyctl(KEYCTL_SET_REQKEY_KEYRING, int reqkey_defl);
-  scm_c_define_gsubr ("keyctl-set-reqkey-keyring", 1, 0, 0, keyctl_set_reqkey_keyring_wrapper);
-
-  // long keyctl(KEYCTL_SET_TIMEOUT, key_serial_t key, unsigned timeout);
-  scm_c_define_gsubr ("keyctl-set-timeout", 2, 0, 0, keyctl_set_timeout_wrapper);
-
-  // long keyctl(KEYCTL_ASSUME_AUTHORITY, key_serial_t key);
-  scm_c_define_gsubr ("keyctl-assume-authority", 0, 1, 0, keyctl_assume_authority_wrapper);
- 
-  // long keyctl(KEYCTL_GET_SECURITY, key_serial_t key, char *buffer, size_t buflen)
-  scm_c_define_gsubr ("keyctl-get-security", 1, 0, 0, keyctl_get_security_wrapper);
-
-  // long keyctl(KEYCTL_SESSION_TO_PARENT); 
-  scm_c_define_gsubr ("keyctl-session-to-parent", 0, 0, 0, keyctl_session_to_parent_wrapper);
-
-  // long keyctl(KEYCTL_INVALIDATE, key_serial_t key);
-  scm_c_define_gsubr ("keyctl-invalidate", 1, 0, 0, keyctl_invalidate_wrapper);
 
 
   /* Permission bits */
