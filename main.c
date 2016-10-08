@@ -34,6 +34,9 @@
 
 
 #define KEY_SERIAL_DESC "NUM"
+#define STRING_DESC "STRING"
+#define BOOL_DESC "BOOL"
+#define OR_FALSE " or #f"
 
 SCM 
 scm_from_key_serial_t(key_serial_t x)
@@ -77,15 +80,15 @@ SCM_DEFINE (add_key_wrapper,   /* Function name in C */
   
   key_serial_t req_keyring = 0;
 
-  SCM_ASSERT_TYPE(scm_is_string(keytype), keytype, SCM_ARG1, "add-key", "STRING" );
-  SCM_ASSERT_TYPE(scm_is_string(description), description, SCM_ARG2, "add-key", "STRING" );
+  SCM_ASSERT_TYPE(scm_is_string(keytype), keytype, SCM_ARG1, s_add_key_wrapper, STRING_DESC );
+  SCM_ASSERT_TYPE(scm_is_string(description), description, SCM_ARG2, s_add_key_wrapper, STRING_DESC );
   SCM_ASSERT_TYPE(scm_is_string(payload) 
 		  || scm_is_false(payload)
 		  || scm_is_undefined(payload),
-		  payload, SCM_ARG3, "add-key", "STRING or #f" );
+		  payload, SCM_ARG3, s_add_key_wrapper, STRING_DESC OR_FALSE );
   SCM_ASSERT_TYPE(scm_is_key_serial_t(keyring)
 		  || scm_is_undefined(keyring), 
-		  keyring, SCM_ARG4, "add-key", KEY_SERIAL_DESC );
+		  keyring, SCM_ARG4, s_add_key_wrapper, KEY_SERIAL_DESC );
 
   scm_dynwind_begin(0);
 
@@ -113,7 +116,7 @@ SCM_DEFINE (add_key_wrapper,   /* Function name in C */
 
   if(result < 0)
     {
-      scm_syserror("add-key");
+      scm_syserror(s_add_key_wrapper);
     }
 
   return scm_from_key_serial_t(result);
@@ -135,16 +138,16 @@ SCM_DEFINE(request_key_wrapper,
   void *req_callout_info = NULL;
   key_serial_t req_dest_keyring = 0;
 
-  SCM_ASSERT_TYPE(scm_is_string(keytype), keytype, SCM_ARG1, "request-key", "STRING" );
-  SCM_ASSERT_TYPE(scm_is_string(description), description, SCM_ARG2, "request-key", "STRING" );
+  SCM_ASSERT_TYPE(scm_is_string(keytype), keytype, SCM_ARG1, s_request_key_wrapper, STRING_DESC );
+  SCM_ASSERT_TYPE(scm_is_string(description), description, SCM_ARG2, s_request_key_wrapper, STRING_DESC );
   SCM_ASSERT_TYPE(scm_is_string(callout_info)
 		  || scm_is_false(callout_info)
 		  || scm_is_undefined(callout_info), 
-		  keytype, SCM_ARG3, "request-key", "STRING or #f" );
+		  keytype, SCM_ARG3, s_request_key_wrapper, STRING_DESC OR_FALSE );
   SCM_ASSERT_TYPE(scm_is_key_serial_t(dest_keyring)
 		  || scm_is_false(dest_keyring)
 		  || scm_is_undefined(dest_keyring), 
-		  keytype, SCM_ARG4, "request-key", KEY_SERIAL_DESC " or #f" );
+		  keytype, SCM_ARG4, s_request_key_wrapper, KEY_SERIAL_DESC OR_FALSE );
 
   scm_dynwind_begin(0);
 
@@ -170,7 +173,7 @@ SCM_DEFINE(request_key_wrapper,
   scm_dynwind_end();
   
   if(result < 0) {
-    scm_syserror("request-key");
+    scm_syserror(s_request_key_wrapper);
   }
 
   return scm_from_key_serial_t(result);
@@ -194,10 +197,10 @@ SCM_DEFINE (keyctl_get_keyring_ID_wrapper,   /* Function name in C */
   key_serial_t req_id = 0;
   int req_create = 0;
   
-  SCM_ASSERT_TYPE(scm_is_key_serial_t(id), id, SCM_ARG1, "keyctl-get-keyring-ID", KEY_SERIAL_DESC );
+  SCM_ASSERT_TYPE(scm_is_key_serial_t(id), id, SCM_ARG1, s_keyctl_get_keyring_ID_wrapper, KEY_SERIAL_DESC );
   SCM_ASSERT_TYPE(scm_is_bool(create)
 		  || scm_is_undefined(create), 
-		  create, SCM_ARG2, "keyctl-get-keyring-ID", "BOOL");
+		  create, SCM_ARG2, s_keyctl_get_keyring_ID_wrapper, BOOL_DESC);
   
   req_id = scm_to_key_serial_t(id);
 
@@ -210,7 +213,7 @@ SCM_DEFINE (keyctl_get_keyring_ID_wrapper,   /* Function name in C */
   
   if(result < 0) //ENOKEY
     {
-      scm_syserror("keyctl-get-keyring-ID");
+      scm_syserror(s_keyctl_get_keyring_ID_wrapper);
     }
 
   return scm_from_key_serial_t(result);
@@ -231,7 +234,7 @@ SCM_DEFINE (keyctl_join_session_keyring_wrapper,   /* Function name in C */
   SCM_ASSERT_TYPE(scm_is_string(name) 
 		  || scm_is_false(name)
 		  || scm_is_undefined(name), 
-		  name, SCM_ARG1, "keyctl-join-session-keyring", "STRING or #f");
+		  name, SCM_ARG1, s_keyctl_join_session_keyring_wrapper, STRING_DESC OR_FALSE);
   
   scm_dynwind_begin(0);
 
@@ -247,7 +250,7 @@ SCM_DEFINE (keyctl_join_session_keyring_wrapper,   /* Function name in C */
 
   if(result < 0) 
     {
-      scm_syserror("keyctl-join-session-keyring");
+      scm_syserror(s_keyctl_join_session_keyring_wrapper);
     }
 
   return scm_from_key_serial_t(result);
@@ -270,11 +273,11 @@ SCM_DEFINE (keyctl_update_wrapper,   /* Function name in C */
   void * req_payload = NULL;
   size_t req_plen = 0;
   
-  SCM_ASSERT_TYPE(scm_is_key_serial_t(key), key, SCM_ARG1, "keyctl-update", KEY_SERIAL_DESC );
+  SCM_ASSERT_TYPE(scm_is_key_serial_t(key), key, SCM_ARG1, s_keyctl_update_wrapper, KEY_SERIAL_DESC );
   SCM_ASSERT_TYPE(scm_is_string(payload)
 		  || scm_is_false(payload)
 		  || scm_is_undefined(payload), 
-		  payload, SCM_ARG2, "keyctl-update", "STRING" );
+		  payload, SCM_ARG2, s_keyctl_update_wrapper, STRING_DESC );
   
   scm_dynwind_begin(0);
 
@@ -293,7 +296,7 @@ SCM_DEFINE (keyctl_update_wrapper,   /* Function name in C */
 
   if(result < 0)
     {
-      scm_syserror("keyctl-update");
+      scm_syserror(s_keyctl_update_wrapper);
     }
 
   return scm_from_long(result);
@@ -312,7 +315,7 @@ SCM_DEFINE (keyctl_revoke_wrapper,   /* Function name in C */
   
   key_serial_t req_key = 0;
 
-  SCM_ASSERT_TYPE(scm_is_key_serial_t(key), key, SCM_ARG1, "keyctl-revoke", KEY_SERIAL_DESC);
+  SCM_ASSERT_TYPE(scm_is_key_serial_t(key), key, SCM_ARG1, s_keyctl_revoke_wrapper, KEY_SERIAL_DESC);
   
   req_key = scm_to_key_serial_t(key);
 
@@ -320,7 +323,7 @@ SCM_DEFINE (keyctl_revoke_wrapper,   /* Function name in C */
   
   if(result < 0)
     {
-      scm_syserror("keyctl-revoke");
+      scm_syserror(s_keyctl_revoke_wrapper);
     }
 
   return result == 0 ? SCM_BOOL_T : scm_from_long(result);
@@ -341,15 +344,15 @@ SCM_DEFINE (keyctl_chown_wrapper,   /* Function name in C */
   uid_t req_uid = -1;
   gid_t req_gid = -1;
 
-  SCM_ASSERT_TYPE(scm_is_key_serial_t(key), key, SCM_ARG1, "keyctl-chown", KEY_SERIAL_DESC);
+  SCM_ASSERT_TYPE(scm_is_key_serial_t(key), key, SCM_ARG1, s_keyctl_chown_wrapper, KEY_SERIAL_DESC);
   SCM_ASSERT_TYPE(scm_is_number(uid) 
 		  || scm_is_false(uid) 
 		  || scm_is_undefined(uid),
-		  uid, SCM_ARG2, "keyctl-chown", KEY_SERIAL_DESC " or #f");
+		  uid, SCM_ARG2, s_keyctl_chown_wrapper, KEY_SERIAL_DESC OR_FALSE);
   SCM_ASSERT_TYPE(scm_is_number(gid)
 		  || scm_is_false(gid)
 		  || scm_is_undefined(gid),
-		  gid, SCM_ARG3, "keyctl-chown", KEY_SERIAL_DESC " or #f");
+		  gid, SCM_ARG3, s_keyctl_chown_wrapper, KEY_SERIAL_DESC OR_FALSE);
 
   req_key = scm_to_key_serial_t(key);
 
@@ -367,7 +370,7 @@ SCM_DEFINE (keyctl_chown_wrapper,   /* Function name in C */
 
   if(result < 0)
     {
-      scm_syserror("keyctl-update");
+      scm_syserror(s_keyctl_chown_wrapper);
     }
 
   return scm_from_long(result);
@@ -387,8 +390,8 @@ SCM_DEFINE (keyctl_setperm_wrapper,   /* Function name in C */
   key_serial_t req_key = 0;
   key_perm_t req_perm = 0;
 
-  SCM_ASSERT_TYPE(scm_is_key_serial_t(key), key, SCM_ARG1, "keyctl-setperm", KEY_SERIAL_DESC);
-  SCM_ASSERT_TYPE(scm_is_number(perm), perm, SCM_ARG2, "keyctl-setperm", KEY_SERIAL_DESC);
+  SCM_ASSERT_TYPE(scm_is_key_serial_t(key), key, SCM_ARG1, s_keyctl_setperm_wrapper, KEY_SERIAL_DESC);
+  SCM_ASSERT_TYPE(scm_is_number(perm), perm, SCM_ARG2, s_keyctl_setperm_wrapper, KEY_SERIAL_DESC);
 
   req_key = scm_to_key_serial_t(key);
 
@@ -398,7 +401,7 @@ SCM_DEFINE (keyctl_setperm_wrapper,   /* Function name in C */
 
   if(result < 0)
     {
-      scm_syserror("keyctl-setperm");
+      scm_syserror(s_keyctl_setperm_wrapper);
     }
 
   return scm_from_long(result);
@@ -419,7 +422,7 @@ SCM_DEFINE (keyctl_describe_wrapper,   /* Function name in C */
   key_serial_t req_key = 0;
   char req_buffer[256];
 
-  SCM_ASSERT_TYPE(scm_is_key_serial_t(key), key, SCM_ARG1, "keyctl-describe", KEY_SERIAL_DESC);
+  SCM_ASSERT_TYPE(scm_is_key_serial_t(key), key, SCM_ARG1, s_keyctl_describe_wrapper, KEY_SERIAL_DESC);
 
   req_key = scm_to_key_serial_t(key);
 
@@ -427,7 +430,7 @@ SCM_DEFINE (keyctl_describe_wrapper,   /* Function name in C */
 
   if(result < 0)
     {
-      scm_syserror("keyctl-describe");
+      scm_syserror(s_keyctl_describe_wrapper);
     }
 
   result = result > 256 ? 256 : result;
@@ -450,7 +453,7 @@ SCM_DEFINE (keyctl_clear_wrapper,   /* Function name in C */
 
   key_serial_t req_keyring = 0;
   
-  SCM_ASSERT_TYPE(scm_is_key_serial_t(keyring), keyring, SCM_ARG1, "keyctl-clear", KEY_SERIAL_DESC);
+  SCM_ASSERT_TYPE(scm_is_key_serial_t(keyring), keyring, SCM_ARG1, s_keyctl_clear_wrapper, KEY_SERIAL_DESC);
   
   req_keyring = scm_to_key_serial_t(keyring);
 
@@ -458,7 +461,7 @@ SCM_DEFINE (keyctl_clear_wrapper,   /* Function name in C */
 
   if(result < 0)
     {
-      scm_syserror("keyctl-clear");
+      scm_syserror(s_keyctl_clear_wrapper);
     }
   
   return SCM_BOOL_T;
@@ -479,8 +482,8 @@ SCM_DEFINE (keyctl_link_wrapper,   /* Function name in C */
   key_serial_t req_keyring = 0;
   key_serial_t req_key = 0;
 
-  SCM_ASSERT_TYPE(scm_is_key_serial_t(keyring), keyring, SCM_ARG1, "keyctl-link", KEY_SERIAL_DESC);
-  SCM_ASSERT_TYPE(scm_is_key_serial_t(key), key, SCM_ARG2, "keyctl-link", KEY_SERIAL_DESC);
+  SCM_ASSERT_TYPE(scm_is_key_serial_t(keyring), keyring, SCM_ARG1, s_keyctl_link_wrapper, KEY_SERIAL_DESC);
+  SCM_ASSERT_TYPE(scm_is_key_serial_t(key), key, SCM_ARG2, s_keyctl_link_wrapper, KEY_SERIAL_DESC);
 
   req_keyring = scm_to_key_serial_t(keyring);
 
@@ -490,7 +493,7 @@ SCM_DEFINE (keyctl_link_wrapper,   /* Function name in C */
 
   if(result < 0)
     {
-      scm_syserror("keyctl-link");
+      scm_syserror(s_keyctl_link_wrapper);
     }
   
   return result ? scm_from_long(result) : SCM_BOOL_T;
@@ -510,8 +513,8 @@ SCM_DEFINE (keyctl_unlink_wrapper,   /* Function name in C */
   key_serial_t req_keyring = 0;
   key_serial_t req_key = 0;
 
-  SCM_ASSERT_TYPE(scm_is_key_serial_t(keyring), keyring, SCM_ARG1, "keyctl-unlink", KEY_SERIAL_DESC);
-  SCM_ASSERT_TYPE(scm_is_key_serial_t(key), key, SCM_ARG2, "keyctl-unlink", KEY_SERIAL_DESC);
+  SCM_ASSERT_TYPE(scm_is_key_serial_t(keyring), keyring, SCM_ARG1, s_keyctl_unlink_wrapper, KEY_SERIAL_DESC);
+  SCM_ASSERT_TYPE(scm_is_key_serial_t(key), key, SCM_ARG2, s_keyctl_unlink_wrapper, KEY_SERIAL_DESC);
 
   req_keyring = scm_to_key_serial_t(keyring);
 
@@ -521,7 +524,7 @@ SCM_DEFINE (keyctl_unlink_wrapper,   /* Function name in C */
 
   if(result < 0)
     {
-      scm_syserror("keyctl-unlink");
+      scm_syserror(s_keyctl_unlink_wrapper);
     }
   
   return result ? scm_from_long(result) : SCM_BOOL_T;
@@ -544,13 +547,13 @@ SCM_DEFINE (keyctl_search_wrapper,   /* Function name in C */
   char * req_description = NULL;
   key_serial_t req_dest_keyring = 0;
 
-  SCM_ASSERT_TYPE(scm_is_key_serial_t(keyring), keyring, SCM_ARG1, "keyctl-search", KEY_SERIAL_DESC);
-  SCM_ASSERT_TYPE(scm_is_string(keytype), keytype, SCM_ARG2, "keyctl-search", "STRING");
-  SCM_ASSERT_TYPE(scm_is_string(description), description, SCM_ARG3, "keyctl-search", "STRING");
+  SCM_ASSERT_TYPE(scm_is_key_serial_t(keyring), keyring, SCM_ARG1, s_keyctl_search_wrapper, KEY_SERIAL_DESC);
+  SCM_ASSERT_TYPE(scm_is_string(keytype), keytype, SCM_ARG2, s_keyctl_search_wrapper, STRING_DESC);
+  SCM_ASSERT_TYPE(scm_is_string(description), description, SCM_ARG3, s_keyctl_search_wrapper, STRING_DESC);
   SCM_ASSERT_TYPE(scm_is_key_serial_t(dest_keyring) 
 		  || scm_is_false(dest_keyring)
 		  || scm_is_undefined(dest_keyring), 
-		  dest_keyring, SCM_ARG4, "keyctl-search", KEY_SERIAL_DESC);
+		  dest_keyring, SCM_ARG4, s_keyctl_search_wrapper, KEY_SERIAL_DESC);
   
   scm_dynwind_begin(0);
 
@@ -573,7 +576,7 @@ SCM_DEFINE (keyctl_search_wrapper,   /* Function name in C */
 
   if(result < 0)
     {
-      scm_syserror("keyctl-search");
+      scm_syserror(s_keyctl_search_wrapper);
     }
 
   return result ? scm_from_key_serial_t(result) : SCM_BOOL_T;
@@ -594,7 +597,7 @@ SCM_DEFINE (keyctl_read_wrapper,   /* Function name in C */
   key_serial_t req_key = 0;
   char req_buffer[256];
   
-  SCM_ASSERT_TYPE(scm_is_key_serial_t(key), key, SCM_ARG1, "keyctl-read", KEY_SERIAL_DESC);
+  SCM_ASSERT_TYPE(scm_is_key_serial_t(key), key, SCM_ARG1, s_keyctl_read_wrapper, KEY_SERIAL_DESC);
 
   req_key = scm_to_key_serial_t(key);
 
@@ -602,7 +605,7 @@ SCM_DEFINE (keyctl_read_wrapper,   /* Function name in C */
 
   if(result < 0)
     {
-      scm_syserror("keyctl-read");
+      scm_syserror(s_keyctl_read_wrapper);
     }
 
   result = result > 256 ? 256 : result;
@@ -630,11 +633,11 @@ SCM_DEFINE (keyctl_instantiate_wrapper,   /* Function name in C */
   size_t req_plen = 0;
 
   SCM_ASSERT_TYPE(scm_is_key_serial_t(key), key, SCM_ARG1, s_keyctl_instantiate_wrapper, KEY_SERIAL_DESC);
-  SCM_ASSERT_TYPE(scm_is_string(payload), payload, SCM_ARG2, s_keyctl_instantiate_wrapper, "STRING");
+  SCM_ASSERT_TYPE(scm_is_string(payload), payload, SCM_ARG2, s_keyctl_instantiate_wrapper, STRING_DESC);
   SCM_ASSERT_TYPE(scm_is_key_serial_t(keyring)
 	     || scm_is_false(keyring)
 	     || scm_is_undefined(keyring),
-	     keyring, SCM_ARG3, s_keyctl_instantiate_wrapper, KEY_SERIAL_DESC " or #f" );
+	     keyring, SCM_ARG3, s_keyctl_instantiate_wrapper, KEY_SERIAL_DESC OR_FALSE );
 
 
   scm_dynwind_begin(0);
@@ -683,12 +686,12 @@ SCM_DEFINE (keyctl_negate_wrapper,   /* Function name in C */
   unsigned req_timeout = 0;
   key_serial_t req_keyring = 0;
 
-  SCM_ASSERT_TYPE(scm_is_key_serial_t(key), key, SCM_ARG1, "keyctl-negate", KEY_SERIAL_DESC );  
-  SCM_ASSERT_TYPE(scm_is_number(timeout), timeout, SCM_ARG2, "keyctl-negate", KEY_SERIAL_DESC );
+  SCM_ASSERT_TYPE(scm_is_key_serial_t(key), key, SCM_ARG1, s_keyctl_negate_wrapper, KEY_SERIAL_DESC );  
+  SCM_ASSERT_TYPE(scm_is_number(timeout), timeout, SCM_ARG2, s_keyctl_negate_wrapper, KEY_SERIAL_DESC );
   SCM_ASSERT_TYPE(scm_is_key_serial_t(keyring) 
 		  || scm_is_false(keyring)
 		  || scm_is_undefined(keyring), 
-		  keyring, SCM_ARG3, "keyctl-negate", KEY_SERIAL_DESC " or #f" );  
+		  keyring, SCM_ARG3, s_keyctl_negate_wrapper, KEY_SERIAL_DESC OR_FALSE );  
 
   req_key = scm_to_key_serial_t(key);
 
@@ -703,7 +706,7 @@ SCM_DEFINE (keyctl_negate_wrapper,   /* Function name in C */
 
   if(result < 0)
     {
-      scm_syserror("keyctl-negate");
+      scm_syserror(s_keyctl_negate_wrapper);
     }
 
   // What does this result mean?
@@ -727,13 +730,13 @@ SCM_DEFINE (keyctl_reject_wrapper,   /* Function name in C */
   unsigned req_error = 0;
   key_serial_t req_keyring = 0;
 
-  SCM_ASSERT_TYPE(scm_is_key_serial_t(key), key, SCM_ARG1, "keyctl-reject", KEY_SERIAL_DESC );  
-  SCM_ASSERT_TYPE(scm_is_number(timeout), timeout, SCM_ARG2, "keyctl-reject", KEY_SERIAL_DESC );
-  SCM_ASSERT_TYPE(scm_is_number(error), error, SCM_ARG3, "keyctl-reject", KEY_SERIAL_DESC );
+  SCM_ASSERT_TYPE(scm_is_key_serial_t(key), key, SCM_ARG1, s_keyctl_reject_wrapper, KEY_SERIAL_DESC );  
+  SCM_ASSERT_TYPE(scm_is_number(timeout), timeout, SCM_ARG2, s_keyctl_reject_wrapper, KEY_SERIAL_DESC );
+  SCM_ASSERT_TYPE(scm_is_number(error), error, SCM_ARG3, s_keyctl_reject_wrapper, KEY_SERIAL_DESC );
   SCM_ASSERT_TYPE(scm_is_key_serial_t(keyring) 
 		  || scm_is_false(keyring)
 		  || scm_is_undefined(keyring), 
-		  keyring, SCM_ARG4, "keyctl-reject", KEY_SERIAL_DESC " or #f" );  
+		  keyring, SCM_ARG4, s_keyctl_reject_wrapper, KEY_SERIAL_DESC OR_FALSE );  
 
   req_key = scm_to_key_serial_t(key);
 
@@ -750,7 +753,7 @@ SCM_DEFINE (keyctl_reject_wrapper,   /* Function name in C */
 
   if(result < 0)
     {
-      scm_syserror("keyctl-reject");
+      scm_syserror(s_keyctl_reject_wrapper);
     }
 
   return scm_from_long(result);
@@ -771,7 +774,7 @@ SCM_DEFINE (keyctl_set_reqkey_keyring_wrapper,   /* Function name in C */
   int req_reqkey_defl = 0;
 
   SCM_ASSERT_TYPE(scm_is_signed_integer(reqkey_defl, INT_MIN, INT_MAX), 
-		  reqkey_defl, SCM_ARG1, "keyctl-set-reqkey", KEY_SERIAL_DESC );
+		  reqkey_defl, SCM_ARG1, s_keyctl_set_reqkey_keyring_wrapper, KEY_SERIAL_DESC );
 
   req_reqkey_defl = scm_to_signed_integer(reqkey_defl, INT_MIN, INT_MAX);
 
@@ -779,7 +782,7 @@ SCM_DEFINE (keyctl_set_reqkey_keyring_wrapper,   /* Function name in C */
 
   if(result < 0)
     {
-      scm_syserror("keyctl-set-reqkey-keyring");
+      scm_syserror(s_keyctl_set_reqkey_keyring_wrapper);
     }
 
   return scm_from_long(result);
@@ -801,8 +804,8 @@ SCM_DEFINE (keyctl_set_timeout_wrapper,   /* Function name in C */
   /* KEYCTL_SET_TIMEOUT parameter is unsigned implied int. */
   unsigned req_timeout = 0;
 
-  SCM_ASSERT_TYPE(scm_is_key_serial_t(key), key, SCM_ARG1, "keyctl-set-timeout", KEY_SERIAL_DESC );  
-  SCM_ASSERT_TYPE(scm_is_unsigned_integer(timeout, 0, INT_MAX), timeout, SCM_ARG2, "keyctl-set-timeout", KEY_SERIAL_DESC );
+  SCM_ASSERT_TYPE(scm_is_key_serial_t(key), key, SCM_ARG1, s_keyctl_set_timeout_wrapper, KEY_SERIAL_DESC );  
+  SCM_ASSERT_TYPE(scm_is_unsigned_integer(timeout, 0, INT_MAX), timeout, SCM_ARG2, s_keyctl_set_timeout_wrapper, KEY_SERIAL_DESC );
 
   req_key = scm_to_key_serial_t(key);
 
@@ -812,7 +815,7 @@ SCM_DEFINE (keyctl_set_timeout_wrapper,   /* Function name in C */
    
   if(result < 0)
     {
-      scm_syserror("keyctl-set-timeout");
+      scm_syserror(s_keyctl_set_timeout_wrapper);
     }
 
   return result ? scm_from_long(result) : SCM_BOOL_T;
@@ -835,7 +838,7 @@ SCM_DEFINE (keyctl_assume_authority_wrapper,   /* Function name in C */
   SCM_ASSERT_TYPE(scm_is_key_serial_t(key)
 		  || scm_is_false(key)
 		  || scm_is_undefined(key), 
-		  key, SCM_ARG1, "keyctl-set-timeout", KEY_SERIAL_DESC );  
+		  key, SCM_ARG1, s_keyctl_assume_authority_wrapper, KEY_SERIAL_DESC );  
   
   if(scm_is_key_serial_t(key))
     {
@@ -844,6 +847,11 @@ SCM_DEFINE (keyctl_assume_authority_wrapper,   /* Function name in C */
 
   result = keyctl(KEYCTL_ASSUME_AUTHORITY, req_key);
 
+  if(result < 0)
+    {
+      scm_syserror(s_keyctl_assume_authority_wrapper);
+    }
+  
   return result ? scm_from_long(result) : SCM_BOOL_T ;
 }
 
@@ -862,7 +870,7 @@ SCM_DEFINE (keyctl_get_security_wrapper,   /* Function name in C */
   key_serial_t req_key = 0;
   char req_buffer[256];
 
-  SCM_ASSERT_TYPE(scm_is_key_serial_t(key), key, SCM_ARG1, "keyctl-get-security", KEY_SERIAL_DESC);
+  SCM_ASSERT_TYPE(scm_is_key_serial_t(key), key, SCM_ARG1, s_keyctl_get_security_wrapper, KEY_SERIAL_DESC);
 
   req_key = scm_to_key_serial_t(key);
 
@@ -870,7 +878,7 @@ SCM_DEFINE (keyctl_get_security_wrapper,   /* Function name in C */
 
   if(result < 0)
     {
-      scm_syserror("keyctl-get-security");
+      scm_syserror(s_keyctl_get_security_wrapper);
     }
   
   result = result > 256 ? 256 : result;
@@ -895,7 +903,7 @@ SCM_DEFINE (keyctl_session_to_parent_wrapper,   /* Function name in C */
 
   if(result < 0)
     {
-      scm_syserror("keyctl-session-to-parent");
+      scm_syserror(s_keyctl_session_to_parent_wrapper);
     }
 
   return result ? scm_from_long(result) : SCM_BOOL_T;
@@ -914,7 +922,7 @@ SCM_DEFINE (keyctl_invalidate_wrapper,   /* Function name in C */
   long result = 0;
   key_serial_t req_key = 0;
 
-  SCM_ASSERT_TYPE(scm_is_key_serial_t(key), key, SCM_ARG1, "keyctl-invalidate", KEY_SERIAL_DESC );
+  SCM_ASSERT_TYPE(scm_is_key_serial_t(key), key, SCM_ARG1, s_keyctl_invalidate_wrapper, KEY_SERIAL_DESC );
 
   req_key = scm_to_key_serial_t(key);
 
@@ -922,7 +930,7 @@ SCM_DEFINE (keyctl_invalidate_wrapper,   /* Function name in C */
 
   if(result < 0)
     {
-      scm_syserror("keyctl-invalidate");
+      scm_syserror(s_keyctl_invalidate_wrapper);
     }
 
   return result ? scm_from_long(result) : SCM_BOOL_T;
