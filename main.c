@@ -621,7 +621,50 @@ SCM_DEFINE (keyctl_instantiate_wrapper,   /* Function name in C */
             (SCM key, SCM payload, SCM keyring), /* C argument list */
             "Instantiate a requested key.") /* Docstring */
 {
-  return SCM_UNDEFINED;
+  long result = 0;
+
+  key_serial_t req_key = 0;
+  key_serial_t req_keyring = 0;
+
+  void * req_payload = NULL;
+  size_t req_plen = 0;
+
+  SCM_ASSERT_TYPE(scm_is_key_serial_t(key), key, SCM_ARG1, s_keyctl_instantiate_wrapper, KEY_SERIAL_DESC);
+  SCM_ASSERT_TYPE(scm_is_string(payload), payload, SCM_ARG2, s_keyctl_instantiate_wrapper, "STRING");
+  SCM_ASSERT_TYPE(scm_is_key_serial_t(keyring)
+	     || scm_is_false(keyring)
+	     || scm_is_undefined(keyring),
+	     keyring, SCM_ARG3, s_keyctl_instantiate_wrapper, KEY_SERIAL_DESC " or #f" );
+
+
+  scm_dynwind_begin(0);
+
+  if(!(scm_is_false(payload) || scm_is_undefined(payload)))
+    {
+      req_payload = scm_to_locale_string(payload);
+      scm_dynwind_free(req_payload);
+      req_plen = strlen(req_payload);
+    }
+
+  if(scm_is_key_serial_t(keyring))
+    {
+      req_keyring = scm_to_key_serial_t(keyring);
+    }
+
+  result = keyctl(KEYCTL_INSTANTIATE,
+		  req_key,
+		  req_payload,
+		  req_plen,
+		  req_keyring);
+
+  scm_dynwind_end();
+
+  if(result < 0)
+    {
+      scm_syserror(s_keyctl_instantiate_wrapper);
+    }
+  
+  return scm_from_key_serial_t(result);
 }
 
 
